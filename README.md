@@ -23,7 +23,8 @@ deliberate conflict resolution rather than automatic force overwrites.
 ## Installation
 
 Install the `cflsync` skill from `skills/cflsync/` in a repository checkout or
-from the complete directory extracted from a release archive.
+from the `cflsync/` directory extracted from a ZIP on
+[GitHub Releases](https://github.com/sverologos/cflsync-skills/releases).
 
 Install cflsync and compatible Pandoc separately. The agent needs filesystem
 and command execution access, network access to Confluence, and a configured

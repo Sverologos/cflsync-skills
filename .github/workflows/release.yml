@@ -1,0 +1,95 @@
+# Copyright (c) 2026 Sverologos BV.
+# This Source Code Form is subject to the terms of the Mozilla Public License,
+# v. 2.0. If a copy of the MPL was not distributed with this file, You can obtain
+# one at https://mozilla.org/MPL/2.0/.
+
+name: Release skill
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    outputs:
+      archive: ${{ steps.metadata.outputs.archive }}
+      tag: ${{ steps.metadata.outputs.tag }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Select package version
+        id: metadata
+        shell: bash
+        run: |
+          release_tag=""
+          if [[ "$GITHUB_REF_TYPE" == "tag" && "$GITHUB_REF_NAME" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            package_version="$GITHUB_REF_NAME"
+            release_tag="$GITHUB_REF_NAME"
+          elif [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
+            printf '::error::Expected a semantic version tag vX.Y.Z without leading zeros.\n'
+            exit 1
+          else
+            package_version="${GITHUB_SHA:0:12}"
+          fi
+          printf 'archive=cflsync-%s.zip\n' "$package_version" >> "$GITHUB_OUTPUT"
+          printf 'tag=%s\n' "$release_tag" >> "$GITHUB_OUTPUT"
+
+      - name: Package complete skill directory
+        shell: bash
+        env:
+          SKILL_ARCHIVE: ${{ steps.metadata.outputs.archive }}
+        run: |
+          test -f skills/cflsync/SKILL.md
+          test -f skills/cflsync/LICENSE.md
+          mkdir -p dist
+          git archive --format=zip --prefix=cflsync/ --output="dist/$SKILL_ARCHIVE" HEAD:skills/cflsync
+          unzip -t "dist/$SKILL_ARCHIVE"
+
+      - name: Upload installable ZIP
+        uses: actions/upload-artifact@v7
+        with:
+          path: dist/${{ steps.metadata.outputs.archive }}
+          archive: false
+          if-no-files-found: error
+
+  release:
+    needs: package
+    if: needs.package.outputs.tag != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download installable ZIP
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ needs.package.outputs.archive }}
+          path: dist
+          skip-decompress: true
+
+      - name: Publish GitHub Release asset
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ needs.package.outputs.tag }}
+          SKILL_ARCHIVE: ${{ needs.package.outputs.archive }}
+        run: |
+          if gh release view "$RELEASE_TAG" > /dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" "dist/$SKILL_ARCHIVE" --clobber
+          else
+            gh release create "$RELEASE_TAG" "dist/$SKILL_ARCHIVE" \
+              --verify-tag --title "$RELEASE_TAG" --generate-notes
+          fi
