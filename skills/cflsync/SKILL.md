@@ -3,7 +3,8 @@ name: cflsync
 description: >-
   Operate cflsync for shared human/AI authoring of Confluence Cloud pages in
   local workareas, including setup, synchronization, publishing, conflict
-  resolution, and copying template pages. Use for requests mentioning
+  resolution, creating pages from scratch or Markdown drafts, and copying
+  template pages. Use for requests mentioning
   Confluence sync, cflsync, cflsync workarea, Confluence workarea,
   Confluence push, or Confluence pull. Applies to CLI workarea operations,
   rather than developing cflsync or general Confluence administration.
@@ -31,7 +32,7 @@ one at https://mozilla.org/MPL/2.0/.
 
 Use the existing cflsync CLI to maintain one rooted Confluence page tree and
 its local Markdown and attachments. Local authoring is the central workflow;
-setup, synchronization, publishing, and page copy support it.
+setup, synchronization, publishing, page creation, and page copy support it.
 
 ## Select guidance
 
@@ -44,6 +45,7 @@ this skill directory; the package carries its operational guidance.
 | Initial synchronization | [Setup](references/setup.md) and [Synchronization](references/synchronization.md) |
 | Edit an existing page | [Authoring](references/authoring.md) and [Synchronization](references/synchronization.md) |
 | Pull, push, inspect status, or resolve a conflict | [Synchronization](references/synchronization.md) |
+| Create a page from scratch or import a standalone Markdown draft | [Page creation](references/creation.md), then authoring/synchronization guidance as needed |
 | Copy and customize a template page | [Template pages](references/template-pages.md), then authoring/synchronization guidance as needed |
 
 Ordinary authoring reuses compatible dependencies; it does not trigger tool
@@ -91,8 +93,8 @@ incompatible. Check the installed CLI's help for commands required by the task.
   two-sided changes deliberately. Force options select one side; they do not
   merge. Deletion and force flags require the corresponding requested scope,
   except a preserved-baseline refresh in the documented merge procedure.
-- A copy creates a remote page before local customization. Do not describe
-  that operation as an unpublished local draft. Do not repeat a creation with
+- `page create` and `page copy` create remote pages before local customization.
+  Do not describe either operation as an unpublished local draft or repeat it with
   a known created ID or an uncertain remote outcome.
 - Check command exits and resulting status. Report local edits, remote
   creation, publication, and verified synchronization as distinct outcomes,

@@ -31,6 +31,8 @@ pandoc --version
 ```
 
 For copying, also check `cflsync page copy --help` and its `--parent` option.
+For creation from scratch or Markdown import, check `cflsync page create --help`
+and its `PARENT_PAGE_REF TITLE` arguments.
 Use command help rather than assuming a `cflsync --version` option exists.
 Only check structural commands such as rename or move when required.
 

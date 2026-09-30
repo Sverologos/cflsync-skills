@@ -143,7 +143,8 @@ Installed ancestors and successful pages remain. Rename or move failures after
 remote success identify a targeted pull for completing local synchronization;
 use that recovery rather than repeating the structural mutation. Do not retry
 create/copy on an uncertain outcome, or automatically delete a partly created
-page. For copy recovery, use the template-page guide.
+page. For creation recovery, use the [page creation guide](creation.md); for
+copy recovery, use the [template-page guide](template-pages.md).
 
 Synchronization source:
 [cflsync specification](https://github.com/sverologos/cflsync/blob/69ebb39239c449ab9b5921e847df09cf7764a5c0/doc/SPEC.md).

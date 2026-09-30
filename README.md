@@ -11,6 +11,8 @@ with local authoring as the central workflow.
 - Pull pages for initial synchronization.
 - Edit existing pages, synchronize changes, resolve conflicts, and publish
   when requested.
+- Create an empty remote page, then author its body from scratch or import a
+  standalone Markdown draft and attachments; publish those changes when requested.
 - Copy an ordinary Confluence source page identified by title, then customize
   the new page. This workflow uses the remote page as a content template, but
   does not instantiate a native Confluence template.
