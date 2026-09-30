@@ -1,9 +1,9 @@
 # cflsync-skills
 
-Agent skills for shared human/AI authoring of Confluence pages in local
-[cflsync](https://github.com/sverologos/cflsync) workareas. The skills provide
-guidance for operating the existing cflsync CLI, with local authoring as the
-central workflow.
+The [cflsync skill](skills/cflsync/SKILL.md) supports shared human/AI authoring
+of Confluence pages in local [cflsync](https://github.com/sverologos/cflsync)
+workareas. The skill provides guidance for operating the existing cflsync CLI,
+with local authoring as the central workflow.
 
 ## Workflows
 
@@ -22,24 +22,23 @@ deliberate conflict resolution rather than automatic force overwrites.
 
 ## Installation
 
-Install the `cflsync-workarea` skill from `skills/cflsync-workarea/` in a
-repository checkout or from the complete directory extracted from a release
-archive.
+Install the `cflsync` skill from `skills/cflsync/` in a repository checkout or
+from the complete directory extracted from a release archive.
 
 Install cflsync and compatible Pandoc separately. The agent needs filesystem
 and command execution access, network access to Confluence, and a configured
 cflsync authentication profile; installing the skill does not supply these.
 See the [cflsync installation instructions](https://github.com/sverologos/cflsync#installation).
 
-Copy the complete `cflsync-workarea/` directory, including `SKILL.md`, its
-license, and references, into one of these locations:
+Copy the complete `cflsync/` directory, including `SKILL.md`, its license, and
+references, into one of these locations:
 
 | Agent | Project installation | Personal installation | Official documentation |
 | --- | --- | --- | --- |
-| Claude Code | `.claude/skills/cflsync-workarea/` | `~/.claude/skills/cflsync-workarea/` | [Claude Code skills](https://code.claude.com/docs/en/skills) |
-| Codex | `.agents/skills/cflsync-workarea/` | `~/.agents/skills/cflsync-workarea/` | [Codex skills](https://learn.chatgpt.com/docs/build-skills) |
-| GitHub Copilot | `.agents/skills/cflsync-workarea/` or `.github/skills/cflsync-workarea/` | `~/.agents/skills/cflsync-workarea/` or `~/.copilot/skills/cflsync-workarea/` | [Copilot skills](https://docs.github.com/en/copilot/concepts/agents/about-agent-skills) |
-| pi.dev | `.agents/skills/cflsync-workarea/` | `~/.agents/skills/cflsync-workarea/` | [Pi skills](https://pi.dev/docs/latest/skills) |
+| Claude Code | `.claude/skills/cflsync/` | `~/.claude/skills/cflsync/` | [Claude Code skills](https://code.claude.com/docs/en/skills) |
+| Codex | `.agents/skills/cflsync/` | `~/.agents/skills/cflsync/` | [Codex skills](https://learn.chatgpt.com/docs/build-skills) |
+| GitHub Copilot | `.agents/skills/cflsync/` or `.github/skills/cflsync/` | `~/.agents/skills/cflsync/` or `~/.copilot/skills/cflsync/` | [Copilot skills](https://docs.github.com/en/copilot/concepts/agents/about-agent-skills) |
+| pi.dev | `.agents/skills/cflsync/` | `~/.agents/skills/cflsync/` | [Pi skills](https://pi.dev/docs/latest/skills) |
 
 Project paths are relative to the target workarea or repository root.
 Personal installations apply across projects. A single `.agents/skills/`
@@ -50,22 +49,22 @@ For example, on Linux, macOS, or WSL, install personally for Codex, Copilot,
 and pi with:
 
 ```sh
-skill_source="/absolute/path/to/cflsync-skills/skills/cflsync-workarea"
-skill_destination="$HOME/.agents/skills/cflsync-workarea"
+skill_source="/absolute/path/to/cflsync-skills/skills/cflsync"
+skill_destination="$HOME/.agents/skills/cflsync"
 mkdir -p "$skill_destination"
 cp -R "$skill_source/." "$skill_destination/"
 ```
 
 For Claude Code, use
-`skill_destination="$HOME/.claude/skills/cflsync-workarea"` instead. For a
+`skill_destination="$HOME/.claude/skills/cflsync"` instead. For a
 project installation, use an absolute destination under the target workarea,
-such as `/absolute/path/to/workarea/.agents/skills/cflsync-workarea` or
-`/absolute/path/to/workarea/.claude/skills/cflsync-workarea`.
+such as `/absolute/path/to/workarea/.agents/skills/cflsync` or
+`/absolute/path/to/workarea/.claude/skills/cflsync`.
 
 Start the agent in the target workarea after copying. Claude Code supports
-`/cflsync-workarea`, Codex supports `$cflsync-workarea`, and pi supports
-`/skill:cflsync-workarea` (or `/reload` to refresh an existing session).
-In Copilot, request use of the `cflsync-workarea` skill for the task.
+`/cflsync`, Codex supports `$cflsync`, and pi supports
+`/skill:cflsync` (or `/reload` to refresh an existing session).
+In Copilot, request use of the `cflsync` skill for the task.
 
 ## License
 
