@@ -19,7 +19,9 @@ The output distinguishes local content/attachment changes, remote changes,
 and a possible directory relocation. A zero exit status does not mean the page
 is unchanged; inspect both sides. `page status` resolves cached local state
 only. For an unpulled page in the tree, establish local state with
-`cflsync page pull PAGE_REF` before editing. Managed paths and exact titles may
+`cflsync page pull PAGE_REF` before editing. For cached pages missing a directory
+or `content.md`, use the recovery procedure below; normal targeted pull fails
+and page status may be unavailable. Managed paths and exact titles may
 resolve the first command; retain its reported ID for later commands.
 
 For whole-workarea scope, use `cflsync status`. Its labels include `not in
@@ -33,10 +35,26 @@ root; do not infer deletion from that label alone.
 | Remote changed only | Pull the page before editing; push would conflict |
 | Local changed only | Preserve edits and incorporate the request; push only if authorized; targeted pull would conflict |
 | Both changed | Preserve both sides and reconcile before publication |
-| Missing local state | Pull the requested in-tree page; preserve existing files if cflsync reports a clash |
+| Uncached page | Normal targeted pull, then attachment validation and status |
+| Cached directory missing | Remote content is authoritative; targeted force pull under the recovery procedure |
+| Cached `content.md` missing | Remote content is authoritative; inspect attachment effects before a guarded targeted force pull |
+| Referenced attachment missing | Error: consult the user about recovery; do not push |
+| Local attachment unreferenced | Warning: consult the user; retain the file without explicit deletion consent |
 | Remote not found, inaccessible, or outside root | Diagnose access, identity, or movement; preserve local work and do not implicitly recreate or bypass scope |
 
 ## Pull and push
+
+Apply [attachment validation](authoring.md#attachment-validation) before push
+and after pull. Resolve missing-reference errors and unreferenced-file warnings
+with the user before proceeding with affected attachment work or publication.
+
+Before a pull that can replace existing managed files, inspect its attachment
+effects. A normal or force pull can delete local managed files absent from the
+new remote manifest. Check the current cached manifest, existing local files,
+and the incoming managed manifest: existing cached files omitted from the
+incoming manifest would be deleted. Obtain explicit consent for those local
+deletions before running the command; a backup or force flag is not consent.
+For whole-tree operations, apply this check to every affected page.
 
 Use targeted commands for a single page:
 
@@ -109,8 +127,11 @@ hashes and versions, not the original document or attachment bytes.
    status. If either changed, preserve the candidate and reassess. Do not
    overwrite intervening human contributions or refresh from remote content
    that has not been considered in the merge.
-5. For the authorized reconciliation, refresh the shared workarea's remote
-   baseline. With preserved local state and a reviewed merge candidate, a
+5. Apply attachment validation to the candidate and check the refresh's local
+   attachment deletions. Resolve errors/warnings with the user and obtain any
+   missing deletion consent before proceeding. For the authorized
+   reconciliation, refresh the shared workarea's remote baseline. With
+   preserved local state and a reviewed merge candidate, a
    targeted `cflsync page pull --force PAGE_ID` may be necessary. This is a
    deliberate replacement of preserved managed files, not an automatic
    conflict remedy. Compare the refreshed content and attachments with the
@@ -118,8 +139,9 @@ hashes and versions, not the original document or attachment bytes.
    before applying it. Locate the page at its current path after the pull.
 6. Apply the merged body and selected attachment set at the current managed
    path, retaining the current generated title heading and preserving
-   unrelated files. Review new attachment references and deletions. An
-   editing-only request leaves this merged candidate local.
+   unrelated files. Validate new attachment references and ensure any local
+   attachment deletion has explicit user consent. An editing-only request
+   leaves this merged candidate local.
 7. If publication is authorized, use a normal
    `cflsync page push PAGE_ID`, then `cflsync page status PAGE_ID`. The normal
    push retains concurrency checks. If another conflict occurs, preserve the
@@ -128,11 +150,96 @@ hashes and versions, not the original document or attachment bytes.
    remote creation/update outcome is uncertain.
 
 An explicit request to retain only the remote side can use a targeted force
-pull; retaining only the local side can use a targeted force push. State the
+pull after the attachment checks and required local-deletion consent;
+retaining only the local side can use a targeted force push. State the
 side selected and keep the operation inside the requested scope. Force push
 still uses Confluence's current version and can conflict with concurrent edits.
 Whole-tree force can affect unchanged pages as well; do not substitute it for
 a targeted resolution.
+
+## Recover missing local state
+
+Use a page ID from the existing cache or established remote identity, rather
+than a missing local path. Run commands from the workarea root. Missing page
+content or a missing directory makes the remote body authoritative; no body
+merge or reconstruction is required. This does not authorize deletion of local
+attachments or discarding surviving attachment edits. Keep all `.cflsync/`
+changes under CLI control and diagnose inaccessible/out-of-tree pages or invalid
+caches instead of recreating pages or editing cache state.
+
+### Uncached page
+
+```console
+cflsync page pull PAGE_ID
+cflsync page status PAGE_ID
+```
+
+Use normal targeted pull, preserve any unmanaged path clash, and validate the
+pulled attachments using the authoring guide before further attachment work or
+publication.
+
+### Cached page directory missing
+
+```console
+cflsync page pull --force PAGE_ID
+cflsync page status PAGE_ID
+```
+
+The targeted force pull restores the remote page and required missing ancestors.
+Check that the directory is actually absent; an existing directory with a
+missing body uses the next procedure. Do not fabricate directories or clear
+cache entries. Cached descendants are not restored by this targeted operation;
+recover only requested descendants separately, parent before child. Locate
+the installed path and validate its attachments after recovery.
+
+### Cached directory present, `content.md` missing
+
+Inspect the remote version separately in a temporary workarea outside the
+shared workarea, using the same profile and root. Run there:
+
+```console
+cflsync init -p PROFILE ROOT_PAGE_ID
+cflsync page pull PAGE_ID
+```
+
+Use that remote body as the authoritative candidate. Inventory surviving local
+attachments, preserve their edits, and apply attachment validation to the
+candidate and the files the refresh would leave. Referenced files unavailable
+from either the surviving files or the incoming remote copy are errors;
+unreferenced local files are warnings. Consult the user about either condition.
+Check for local deletions using the manifests as described above. Do not proceed
+until advice is resolved and any local deletion has explicit consent.
+
+Once these checks permit the refresh, run from the original workarea root:
+
+```console
+cflsync page pull --force PAGE_ID
+cflsync page status PAGE_ID
+```
+
+This restores the remote body and refreshes the baseline through the CLI. A
+force pull also replaces managed attachment bytes; preserve and reapply any
+surviving local attachment edits covered by the user's advice. Locate the
+current path, revalidate attachments, and inspect status after reapplication.
+If the remote version or local files changed since inspection, reassess the
+attachment effects before refreshing. Do not use a whole-tree force pull for
+this single-page recovery.
+
+### Referenced attachments missing or local attachments unreferenced
+
+Keep the existing body authoritative for its attachment requirements. A missing
+referenced attachment is an error: report it and consult the user about recovery,
+even if a remote copy or backup appears available. An absent `_attachments/`
+directory is an error only when the body references attachments. Do not
+force-pull the whole page to repair missing attachments.
+Unreferenced local attachments are warnings: consult the user and retain them
+until deletion is explicitly authorized. Apply the agreed action to the
+affected files and references, validate again, and inspect page status.
+
+Recovery ends with status inspection and reporting unresolved errors/warnings.
+It does not include an automatic push, and retained local edits can legitimately
+leave a local-changed status. Synchronization does not establish that attachment
+validation passed or that Confluence rendering was verified.
 
 ## Partial failures
 

@@ -47,6 +47,7 @@ this skill directory; the package carries its operational guidance.
 | Initial synchronization | [Setup](references/setup.md) and [Synchronization](references/synchronization.md) |
 | Edit an existing page | [Authoring](references/authoring.md) and [Synchronization](references/synchronization.md) |
 | Pull, push, inspect status, or resolve a conflict | [Synchronization](references/synchronization.md) |
+| Recover missing page content/directories or diagnose missing/unreferenced attachments | [Recovery](references/synchronization.md#recover-missing-local-state) and [Attachment validation](references/authoring.md#attachment-validation) |
 | Create a page from scratch | [Page creation](references/creation.md), then authoring/synchronization guidance as needed |
 | Import one or more Markdown files into an existing workarea, leaving imported content local | [Markdown import](references/import.md), with creation/authoring/synchronization guidance as directed |
 | Import a directory of Markdown files, selecting parents by subdirectory title matches | [Directory import](references/import.md#directory-import), then the shared single-page steps in that guide |
@@ -87,6 +88,15 @@ incompatible. Check the installed CLI's help for commands required by the task.
 - Preserve unrelated human edits, attachment changes, and unmanaged files.
   Re-read affected files before applying an edit and incorporate intervening
   changes rather than replacing a stale snapshot.
+- When a page directory or `content.md` is missing, remote page content is
+  authoritative; use the recovery guide instead of reconstructing or merging
+  its missing body. Page-content links define required attachments. Missing
+  referenced files are errors; unreferenced local attachments are warnings.
+  Report either condition and consult the user about how to proceed.
+- Never delete local attachments without explicit user consent covering the
+  affected files, including deletion performed by a CLI command. Existing
+  explicit authorization carries through; a generic sync/recovery request,
+  force flag, or backup does not provide deletion consent.
 - Keep an editing-only request local. An edit-and-publish request includes
   push; carry existing authorization through that task without repeated
   confirmation. A generic sync request with changes on both sides requires
@@ -101,7 +111,9 @@ incompatible. Check the installed CLI's help for commands required by the task.
   remote-only changes first, incorporate local-only changes, and resolve
   two-sided changes deliberately. Force options select one side; they do not
   merge. Deletion and force flags require the corresponding requested scope,
-  except a preserved-baseline refresh in the documented merge procedure.
+  except a preserved-baseline refresh in the documented merge procedure or
+  remote-authoritative recovery of a missing page body/directory. These
+  exceptions do not waive the attachment-deletion consent requirement.
 - `page create` and `page copy` create remote pages before local customization.
   Do not describe either operation as an unpublished local draft or repeat it with
   a known created ID or an uncertain remote outcome.

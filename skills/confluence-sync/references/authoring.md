@@ -20,6 +20,7 @@ one at https://mozilla.org/MPL/2.0/.
 4. Review the content and attachment diff, including deletions and links. A
    Git diff is useful when available, but Git is not required. Preserve opaque
    JSON blocks and validate any deliberately edited special-span attributes.
+   Apply attachment validation below before publication or attachment changes.
 5. Leave an editing-only result local. If publishing is requested, use
    `cflsync page push PAGE_ID`, then `cflsync page status PAGE_ID`. Handle a new
    conflict rather than forcing a stale candidate over intervening edits.
@@ -124,10 +125,13 @@ Use relative references rooted at the page's `_attachments/` directory:
 [Download report](_attachments/report.pdf)
 ```
 
-The remote manifest defines existing managed files. A new local file becomes
-managed when `content.md` references it under `_attachments/`; an unreferenced
-local file stays unmanaged. Links elsewhere remain ordinary links; external
-images are supported as external media. Do not introduce traversal paths.
+Links in `content.md` define the attachments required by the page. The CLI's
+remote manifest tracks existing managed files; it can include files that the
+body no longer references. A referenced local file joins the managed set,
+while a new unreferenced file stays unmanaged. Management status does not
+determine whether a file is required or authorize its deletion. Links elsewhere
+remain ordinary links; external images are supported as external media. Do not
+introduce traversal paths.
 Filenames in targets are percent-encoded, for example
 `_attachments/Pasted%20image.png`, or enclosed in Markdown angle brackets when
 they contain spaces. New files referenced by HTML `<img src="_attachments/…">`
@@ -141,9 +145,32 @@ attachment repair.
 Content and the complete managed attachment set share one synchronization
 unit. Changing an attachment can conflict even when Markdown is unchanged.
 Removing a previously managed attachment file locally can delete it remotely
-on push. Review intended deletions and repair or remove references accordingly;
-do not discard unmanaged files. Removing a page directory manually does not
-delete the remote page and is not a substitute for `page remove`.
+on push. Delete local attachments only with explicit consent for the affected
+files; removing their references alone does not authorize file deletion. Repair
+references after an authorized deletion and keep remote deletion within the
+requested scope. Removing a page directory manually does not delete the remote
+page and is not a substitute for `page remove`.
+
+## Attachment validation
+
+Read the current `content.md` and compare its local attachment targets with the
+files in `_attachments/`. Include inline and reference-style image/file links
+and supported HTML `<img src="…">` references; decode URL-encoded filenames.
+External URLs and links to other pages are not local attachment requirements.
+
+- A referenced attachment that is missing is an error. Report the page, link,
+  and expected filename and consult the user about recovery. Do not silently
+  remove the link, fetch a replacement, or push the incomplete page.
+- A local attachment that is unreferenced is a warning, whether managed or
+  unmanaged. Report the file and consult the user about its disposition. Keep
+  it in place until deletion is explicitly authorized.
+
+Apply these checks after editing/importing a body and after pulling or recovering
+a page. Also validate the proposed body before a refresh that affects existing
+attachments. Resolve the user's advice before continuing affected attachment
+operations or publication. Check again after applying that advice; any deletion
+must have explicit consent covering the affected local files. Preserve opaque
+ADF and existing attachment references while investigating uncertain usage.
 
 ## Links between managed pages
 

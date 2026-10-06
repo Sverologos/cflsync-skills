@@ -134,9 +134,9 @@ selected above. The rest of the procedure is the same in both cases.
    Review other relative links because their base directory has changed;
    links to other Markdown documents are not media and do not automatically
    become attachments or links to imported pages.
-5. Report missing or unresolved local media and leave that file's import
-   incomplete rather than claim success with broken links. Do not overwrite
-   managed or unmanaged files blindly or introduce traversal paths in
+5. Report missing or unresolved local media as errors and consult the user
+   about recovery; leave that file's import incomplete while advice is pending.
+   Do not overwrite managed or unmanaged files blindly or introduce traversal paths in
    `_attachments/` references. A copied file becomes managed only when
    `content.md` references it under `_attachments/`.
 6. Re-read affected destination files before applying changes. Review the
@@ -146,8 +146,11 @@ selected above. The rest of the procedure is the same in both cases.
 ## Verify and report without publishing
 
 Check that the generated title is retained, each rewritten local-media target
-exists, and distinct source assets have not overwritten one another. Inspect
-the resulting local changes and run:
+exists, and distinct source assets have not overwritten one another. Apply
+[attachment validation](authoring.md#attachment-validation): consult the user
+about missing referenced files or unreferenced local attachments, retaining
+files without explicit deletion consent. Inspect the resulting local changes
+and run:
 
 ```console
 cflsync page status NEW_ID
