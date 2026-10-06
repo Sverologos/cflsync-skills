@@ -3,7 +3,7 @@ name: confluence-sync
 description: >-
   Operate cflsync for shared human/AI authoring of Confluence Cloud pages in
   local workareas, including setup, synchronization, publishing, conflict
-  resolution, creating pages, importing Markdown files, and copying
+  resolution, creating pages, importing Markdown files or directories, and copying
   template pages. Use for requests mentioning
   confluence sync, cflsync, cflsync workarea, Confluence workarea,
   Confluence push, or Confluence pull. Applies to CLI workarea operations,
@@ -49,6 +49,7 @@ this skill directory; the package carries its operational guidance.
 | Pull, push, inspect status, or resolve a conflict | [Synchronization](references/synchronization.md) |
 | Create a page from scratch | [Page creation](references/creation.md), then authoring/synchronization guidance as needed |
 | Import one or more Markdown files into an existing workarea, leaving imported content local | [Markdown import](references/import.md), with creation/authoring/synchronization guidance as directed |
+| Import a directory of Markdown files, selecting parents by subdirectory title matches | [Directory import](references/import.md#directory-import), then the shared single-page steps in that guide |
 | Copy and customize a template page | [Template pages](references/template-pages.md), then authoring/synchronization guidance as needed |
 
 Ordinary authoring reuses compatible dependencies; it does not trigger tool

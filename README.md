@@ -22,6 +22,10 @@ workarea or markup transitions.
   root, deriving titles from level-one headings or filenames. Copy referenced
   local media and rewrite attachment links. Empty pages are created remotely;
   imported content and attachments remain local without an automatic push.
+- Import a directory of Markdown files, including nested subdirectories.
+  Top-level files use the workarea root; files in a subdirectory use the page
+  whose title matches that subdirectory's name, falling back to the root when
+  no page matches. Each file follows the same import procedure without a push.
 - Copy an ordinary Confluence source page identified by title, then customize
   the new page. This workflow uses the remote page as a content template, but
   does not instantiate a native Confluence template.

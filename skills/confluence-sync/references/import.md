@@ -7,9 +7,10 @@ one at https://mozilla.org/MPL/2.0/.
 
 # Import Markdown files into an existing workarea
 
-Import one or more Markdown files as new pages directly under the configured
-workarea root. Creation makes an empty page visible remotely; the imported body
-and attachments remain local. Do not push automatically at the end of import.
+Import individually selected Markdown files under the configured workarea root.
+A request to import a directory uses the multi-page procedure below to select
+each file's parent. Creation makes an empty page visible remotely; the imported
+body and attachments remain local. Do not push automatically at the end of import.
 Publication is a separate requested operation using the
 [synchronization guide](synchronization.md).
 
@@ -23,13 +24,56 @@ initialize or re-anchor a workarea as part of import. Check
 Read the selected source files and identify their referenced local media before
 creation. Preserve the source files and assets. Resolve relative media paths
 against each source file's directory, not the workarea or current command
-directory. Import only the selected Markdown files, with one new page per
-file; do not recreate their source directory hierarchy as pages.
+directory. Import only Markdown files, with one new page per file; other files
+are copied only when referenced as local media. Do not create pages merely to
+represent source directories.
 
-## Select a title and create each page
+## Directory import
+
+When the requested source is a directory, enumerate its Markdown files,
+including files in nested subdirectories. Process the top-level files first,
+then each subdirectory's files before descending into its children. Pages
+created earlier in this import can serve as parents for later files.
+
+For each file, select `PARENT_ID` before applying the single-page procedure:
+
+- A file directly inside the requested directory uses `ROOT_ID`, regardless
+  of the requested directory's name.
+- A file inside a subdirectory uses that immediate containing directory's
+  basename as an exact page title. Follow the skill's title-lookup rules:
+  cached exact-title matches take precedence; without a cached match, look
+  for an exact-title match among remote pages inside the configured root tree.
+  Include pages already created in this batch. Retain the matching page's ID
+  as `PARENT_ID` and verify that it is still a valid in-tree parent.
+- If there is no matching page in the tree, use `ROOT_ID`. For a nested
+  directory, check its own basename; do not inherit a matching ancestor
+  directory's parent when the immediate directory has no match.
+
+Directory names are titles, not managed directory names, paths, or numeric
+page IDs. Resolve the title deliberately and pass the resulting ID to
+`page create`; a raw directory name could otherwise be interpreted as a path
+or ID by the CLI. If lookup is ambiguous or fails, leave the affected file
+pending and report the candidate IDs or error. Use root fallback only for a
+confirmed absence of a match, not for an unresolved lookup. Preserve unrelated
+parent edits; creating children does not require publishing their parents.
+
+For example, when `Architecture` is a matching page and `misc` is not:
+
+| Source path relative to the requested directory | Parent |
+| --- | --- |
+| `overview.md` | Workarea root |
+| `Architecture/decision.md` | The `Architecture` page |
+| `misc/notes.md` | Workarea root |
+
+Apply all single-page steps below to every file with its selected `PARENT_ID`,
+including media transfer and local verification. Do not push the batch.
+
+## Single-page import
 
 Process files individually, retaining the source path, selected title, new page
-ID, installed path, and outcome for each file.
+ID, parent ID, installed path, and outcome for each file. For an individually
+selected file, set `PARENT_ID` to `ROOT_ID`; directory import uses the parent
+selected above. The rest of the procedure is the same in both cases.
 
 1. If the file contains a level-one Markdown heading, use the first such
    heading's plain text as the page title. Recognize both ATX (`# Title`) and
@@ -41,10 +85,10 @@ ID, installed path, and outcome for each file.
 3. Ensure the selected title is non-empty, single-line text without surrounding
    whitespace. Trim heading whitespace; resolve an unusable title before
    creating the page rather than inventing one.
-4. From the workarea root, create the page with the root page as its parent:
+4. From the workarea root, create the page under the selected parent:
 
    ```console
-   cflsync page create ROOT_ID "Selected title"
+   cflsync page create PARENT_ID "Selected title"
    ```
 
    Follow [page creation](creation.md#create-once-and-retain-identity) for
@@ -110,8 +154,8 @@ cflsync page status NEW_ID
 ```
 
 Local content or attachment changes are the expected result; do not push to
-obtain an unchanged status. Report each source file's new page ID and managed
-path, local import outcome, unresolved assets, and failed or skipped steps.
+obtain an unchanged status. Report each source file's new page ID, parent ID,
+managed path, local import outcome, unresolved assets, and failed or skipped steps.
 Distinguish remote creation of the empty page from local preparation of its
 body and attachments. Status does not verify Confluence browser rendering.
 

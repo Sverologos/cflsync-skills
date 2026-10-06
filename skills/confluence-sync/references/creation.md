@@ -66,9 +66,9 @@ Write the requested body below the generated title using the
 requested title or parent, reuse only the
 [body and media transfer steps](import.md#copy-the-body-and-local-media)
 from the import guide; retain this creation request's title, parent, and
-publication scope. For the dedicated workflow that derives titles from one or
-more Markdown files and creates pages under the workarea root, use the
-[import guide](import.md).
+publication scope. For the dedicated workflow that derives titles from Markdown
+files and selects parents for individually selected files or directory imports,
+use the [import guide](import.md).
 
 If only creation and local authoring were requested, leave these changes
 local and report that the empty page already exists remotely. When publication
