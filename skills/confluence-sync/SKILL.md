@@ -1,23 +1,24 @@
 ---
-name: cflsync
+name: confluence-sync
 description: >-
   Operate cflsync for shared human/AI authoring of Confluence Cloud pages in
   local workareas, including setup, synchronization, publishing, conflict
-  resolution, creating pages from scratch or Markdown drafts, and copying
+  resolution, creating pages, importing Markdown files, and copying
   template pages. Use for requests mentioning
-  Confluence sync, cflsync, cflsync workarea, Confluence workarea,
+  confluence sync, cflsync, cflsync workarea, Confluence workarea,
   Confluence push, or Confluence pull. Applies to CLI workarea operations,
   rather than developing cflsync or general Confluence administration.
 license: MPL-2.0
 compatibility: >-
   Requires filesystem and command execution access, separately installed
-  cflsync with rooted workareas and native page copy, Pandoc with JSON API
+  cflsync supporting workarea/cache format 3, Pandoc with JSON API
   1.23.1.2, network access to Confluence Cloud, and a configured cflsync
   authentication profile. See references/setup.md for capability checks.
 metadata:
   author: Sverologos BV
   version: "0.1.0"
-  cflsync-revision: "69ebb39239c449ab9b5921e847df09cf7764a5c0"
+  cflsync-version: "0.5.7"
+  cflsync-revision: "4ec3f3ecb3968017fc9fdde9e7140af4a228eafc"
   pandoc-json-api: "1.23.1.2"
 ---
 
@@ -28,11 +29,12 @@ v. 2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at https://mozilla.org/MPL/2.0/.
 -->
 
-# cflsync
+# Confluence sync
 
 Use the existing cflsync CLI to maintain one rooted Confluence page tree and
 its local Markdown and attachments. Local authoring is the central workflow;
-setup, synchronization, publishing, page creation, and page copy support it.
+setup, synchronization, publishing, page creation, Markdown import, and page
+copy support it.
 
 ## Select guidance
 
@@ -45,7 +47,8 @@ this skill directory; the package carries its operational guidance.
 | Initial synchronization | [Setup](references/setup.md) and [Synchronization](references/synchronization.md) |
 | Edit an existing page | [Authoring](references/authoring.md) and [Synchronization](references/synchronization.md) |
 | Pull, push, inspect status, or resolve a conflict | [Synchronization](references/synchronization.md) |
-| Create a page from scratch or import a standalone Markdown draft | [Page creation](references/creation.md), then authoring/synchronization guidance as needed |
+| Create a page from scratch | [Page creation](references/creation.md), then authoring/synchronization guidance as needed |
+| Import one or more Markdown files into an existing workarea, leaving imported content local | [Markdown import](references/import.md), with creation/authoring/synchronization guidance as directed |
 | Copy and customize a template page | [Template pages](references/template-pages.md), then authoring/synchronization guidance as needed |
 
 Ordinary authoring reuses compatible dependencies; it does not trigger tool
@@ -56,12 +59,17 @@ incompatible. Check the installed CLI's help for commands required by the task.
 
 - Find the workarea by walking upward from the requested working directory to
   `.cflsync/profile`. Read that profile name and `.cflsync/root` to establish
-  the configured root ID. Private `.cflsync/cache/` state is not page content;
-  do not fabricate or modify it to bypass an error. No file in .cflsync or its
-  subdirectories may be altered except through the cflsync CLI.
+  the configured root ID. `.cflsync/version` must hold workarea version `3`;
+  use setup guidance for incompatible workareas. Private `.cflsync/cache/`
+  state is not page content; do not fabricate or modify it to bypass an error.
+  No file in `.cflsync` or its subdirectories may be altered except through
+  the cflsync CLI.
 - A managed page contains `content.md`, `_attachments/`, and cached child-page
   directories. Other entries are unmanaged; preserve them. Run commands from
   the workarea root when a page directory may move or be renamed.
+- Every managed page directory, including the root page's, ends in `_PAGE_ID`.
+  The CLI encodes and may truncate the title portion. Retain the installed path
+  instead of constructing it from a title.
 - Page references are classified as an existing local path, then a numeric
   page ID, then an exact title. A local file must be managed `content.md`; a
   local directory must identify a cached page. Ordinary commands remain inside

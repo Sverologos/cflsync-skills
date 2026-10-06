@@ -44,7 +44,7 @@ jobs:
           else
             package_version="${GITHUB_SHA:0:12}"
           fi
-          printf 'archive=cflsync-%s.zip\n' "$package_version" >> "$GITHUB_OUTPUT"
+          printf 'archive=confluence-sync-%s.zip\n' "$package_version" >> "$GITHUB_OUTPUT"
           printf 'tag=%s\n' "$release_tag" >> "$GITHUB_OUTPUT"
 
       - name: Package complete skill directory
@@ -52,10 +52,10 @@ jobs:
         env:
           SKILL_ARCHIVE: ${{ steps.metadata.outputs.archive }}
         run: |
-          test -f skills/cflsync/SKILL.md
-          test -f skills/cflsync/LICENSE.md
+          test -f skills/confluence-sync/SKILL.md
+          test -f skills/confluence-sync/LICENSE.md
           mkdir -p dist
-          git archive --format=zip --prefix=cflsync/ --output="dist/$SKILL_ARCHIVE" HEAD:skills/cflsync
+          git archive --format=zip --prefix=confluence-sync/ --output="dist/$SKILL_ARCHIVE" HEAD:skills/confluence-sync
           unzip -t "dist/$SKILL_ARCHIVE"
 
       - name: Upload installable ZIP

@@ -86,9 +86,15 @@ remote metadata without local synchronization or label-only change detection.
 Structured source-owned media resolves to copied attachment IDs. Relative
 `_attachments/` references use the new page's attachment manifest. Ordinary
 download URLs, Smart Links, version parameters, and foreign-page media remain
-unchanged and may depend on source access. App macros can rely on excluded
-metadata. Verify rendering and source independence when the request requires
-them; a successful copy or no-op push alone does not establish either.
+unchanged and may depend on source access. Qualifying ordinary page links use
+the normal local/remote page-link conversion described in the
+[authoring guide](authoring.md#links-between-managed-pages); copy does not
+retarget them to a different page. Remote attachments sharing a filename are
+handled by the normal duplicate-attachment rules: one is managed and the
+others remain untouched, with their media retained as opaque ADF. App macros
+can rely on excluded metadata. Verify rendering and source independence when
+the request requires them; a successful copy or no-op push alone does not
+establish either.
 
 ## Recover without another creation
 
@@ -104,4 +110,4 @@ failed command created nothing. Do not automatically delete a created page as
 rollback; unresolved identity or outcome is a stopping condition.
 
 Copy behavior source:
-[cflsync page copy specification](https://github.com/sverologos/cflsync/blob/69ebb39239c449ab9b5921e847df09cf7764a5c0/doc/SPEC.md#page-copy).
+[cflsync page copy specification](https://github.com/sverologos/cflsync/blob/4ec3f3ecb3968017fc9fdde9e7140af4a228eafc/doc/SPEC.md#page-copy).

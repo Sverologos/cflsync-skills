@@ -5,7 +5,7 @@ v. 2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at https://mozilla.org/MPL/2.0/.
 -->
 
-# Create from scratch or import a Markdown draft
+# Create a page from scratch
 
 ## Establish destination and creation scope
 
@@ -36,10 +36,12 @@ cflsync page create PARENT_ID "New page title"
 
 Before remote creation, the CLI installs the parent and any missing ancestors.
 It preserves existing local ancestor edits; do not push those edits merely to
-create a child. An unmanaged entry occupying the proposed page path is refused
-before creation. Preserve it and resolve the clash deliberately. A cached
-sibling using the directory name causes the new directory to receive a page-ID
-suffix. Do not construct managed directories or change `.cflsync/` manually.
+create a child. Every page directory ends in its page ID, including the root
+page's. The new ID is known only after remote creation, so an unmanaged entry
+occupying the new page's actual path is refused by the follow-up pull, after
+the remote page exists. Preserve the entry and use creation recovery rather
+than create again. Do not construct managed directories or change `.cflsync/`
+manually.
 
 The CLI creates an empty remote child, then pulls it into the workarea with a
 generated title heading and attachment directory. Check the exit status before
@@ -52,43 +54,23 @@ cflsync page status "path/to/new/page/content.md"
 ```
 
 Retain that ID as `NEW_ID` and the installed path. Do not select an arbitrary
-title match or assume a title-derived path when a suffix or clash is possible.
+title match or assume that the title alone identifies the installed path.
 Read the generated `content.md` and check local/remote status before editing;
 another contributor may already have changed the new page. Apply the authoring
 and synchronization guides to any intervening changes.
 
-## Author or import the body
+## Author the body
 
-For creation from scratch, write the requested body below the generated title
-using the authoring guide. For a standalone Markdown draft:
+Write the requested body below the generated title using the
+[authoring guide](authoring.md). For a supplied draft with an explicitly
+requested title or parent, reuse only the
+[body and media transfer steps](import.md#copy-the-body-and-local-media)
+from the import guide; retain this creation request's title, parent, and
+publication scope. For the dedicated workflow that derives titles from one or
+more Markdown files and creates pages under the workarea root, use the
+[import guide](import.md).
 
-1. Read the source draft and its referenced local assets. Preserve the source
-   files; import content into the CLI-created page, rather than move the draft
-   into a fabricated managed directory. Arbitrary Markdown files cannot be
-   pushed directly as managed pages, even if named `content.md`.
-2. Keep the generated first and only level-one heading in the destination.
-   Omit a draft heading that only repeats its document title; retain meaningful
-   body headings at levels two through six, adjusting their hierarchy as
-   needed. Do not overwrite the generated title with the draft's title. Use
-   `page rename` on a synchronized page if a title change is requested.
-3. Transfer the requested body into the current managed `content.md`, adapting
-   unsupported Markdown using the authoring guide. Preserve unrelated edits
-   and opaque ADF already present in the destination. Relative links from the
-   draft must be reviewed because their base directory has changed.
-4. Copy the requested local images and downloadable files into this page's
-   `_attachments/` directory and rewrite their references, for example
-   `images/diagram.png` to `_attachments/diagram.png`. Resolve source assets
-   relative to the draft, choose non-conflicting attachment names, and update
-   image/link references, including reference-style definitions. Do not
-   overwrite existing managed or unmanaged files blindly. External URLs may
-   remain external when intended; report unresolved assets rather than leave
-   broken local references or introduce traversal paths. A copied file is
-   managed only when referenced under `_attachments/` in `content.md`.
-5. Re-read affected destination files before applying changes and review the
-   resulting content, attachment set, references, and any deletions. Do not
-   copy the draft's directories, cache, or unrelated files into the page tree.
-
-If only creation and local authoring/import were requested, leave these changes
+If only creation and local authoring were requested, leave these changes
 local and report that the empty page already exists remotely. When publication
 of the body and attachments is authorized, use only the new page's ID:
 
@@ -125,4 +107,4 @@ also have succeeded. Stop further creation while the remote outcome or new
 identity remains uncertain, to avoid duplicate pages.
 
 Creation behavior source:
-[cflsync specification](https://github.com/sverologos/cflsync/blob/69ebb39239c449ab9b5921e847df09cf7764a5c0/doc/SPEC.md).
+[cflsync specification](https://github.com/sverologos/cflsync/blob/4ec3f3ecb3968017fc9fdde9e7140af4a228eafc/doc/SPEC.md).

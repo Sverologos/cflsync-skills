@@ -9,15 +9,17 @@ one at https://mozilla.org/MPL/2.0/.
 
 ## Dependencies and compatibility
 
-These instructions follow cflsync source revision
-`69ebb39239c449ab9b5921e847df09cf7764a5c0` (project version `0.4.5`). Required
-capabilities include rooted workareas, page status/pull/push, and native
-`page copy --parent` for template-page tasks. Do not infer command availability
-from the version number alone. The documented revision can be selected for a
+These instructions follow cflsync **0.5.7**, source revision
+`4ec3f3ecb3968017fc9fdde9e7140af4a228eafc` (tag `v0.5.7`). Required
+capabilities include rooted workareas with workarea/cache format 3 and page
+status/pull/push. Creation and import require `page create`; template-page
+tasks require native `page copy --parent`. Do not infer command availability
+from the version number alone. The documented tag can be selected for a
 reproducible installation.
 
-Offline CLI workflows were validated against this revision on Linux with
-Python 3.13.15 and Pandoc 3.10 using isolated Confluence fixtures.
+The installed 0.5.7 package was checked against the tagged source. CLI and
+markup behavior were validated on Linux with Python 3.13 and Pandoc 3.10 using
+isolated Confluence fixtures; these checks did not contact a live site.
 
 Check the existing commands without contacting Confluence:
 
@@ -59,7 +61,7 @@ Reuse an existing bucket rather than add it again. On Linux/macOS or WSL, use
 uv with Python 3.11 or later and install compatible Pandoc separately:
 
 ```console
-uv tool install git+https://github.com/sverologos/cflsync@69ebb39239c449ab9b5921e847df09cf7764a5c0
+uv tool install git+https://github.com/sverologos/cflsync@v0.5.7
 ```
 
 From a suitable application checkout, `uv tool install .` is also supported.
@@ -82,7 +84,8 @@ success.
    files, page content, or command arguments. A noninteractive environment
    without a usable profile is an unmet setup dependency.
 3. Inspect the intended directory and its ancestors for an existing workarea.
-   Read `.cflsync/profile` and `.cflsync/root`; preserve its cache and content.
+   Read `.cflsync/profile`, `.cflsync/root`, and `.cflsync/version`; preserve
+   its cache and content. Version `3` is required for this cflsync release.
    Reuse a matching workarea. Do not initialize inside another workarea or
    silently switch an existing root/profile.
 4. Resolve the root as a numeric ID or exact title. `init` checks it remotely
@@ -94,14 +97,37 @@ success.
    cflsync init -p PROFILE ROOT_PAGE_REF
    ```
 
-Initialization anchors the workarea; it downloads no pages. Report the selected
-root ID/profile and whether synchronization was requested and completed.
+Initialization anchors the workarea and records version `3`; it downloads no
+pages. Report the selected root ID/profile and whether synchronization was
+requested and completed.
 Omitting `-p` selects `default`, including during re-anchoring.
 
 Re-anchoring is a distinct requested operation: `init` permits it only from the
 workarea root when the cache contains no page state. Do not clear a populated
-cache to satisfy this restriction. A legacy unanchored workarea needs the
-application's documented migration, preserving existing content first.
+cache to satisfy this restriction.
+
+## Existing workareas and older markup
+
+cflsync 0.5.7 refuses populated workareas created by 0.4 or earlier, including
+format-1 and format-2 cache entries. For a requested migration, preserve local
+content, attachments, and unmanaged files first. Publish old local changes
+using the version that created the workarea only when publication is requested;
+otherwise retain them for deliberate reapplication. Initialize a fresh workarea
+in an empty directory with the established profile and root, pull the requested
+pages, and transfer preserved local changes and needed unmanaged files into
+the new managed paths. Do not edit `.cflsync/version`, rewrite cache entries,
+or clear the old cache to bypass compatibility checks. An empty older workarea
+can be re-anchored by the CLI only within an explicit setup/migration request.
+
+In compatible workareas, dates from 0.5.3 and earlier and statuses from 0.5.6
+and earlier use spans that 0.5.7 rejects on push. Rewrite them using the
+[authoring guide](authoring.md#special-spans-and-opaque-content), preserving
+the intended date and status. Older panel alerts still push, but now use the
+one-to-one mapping in that guide; review their intended panel type. A normal
+pull does not regenerate unchanged files. If a requested migration needs fresh
+remote markup, use targeted `page pull --force` only after preserving and
+reconciling local changes under the synchronization guide. Do not force-pull
+the whole tree merely because the installed tool was upgraded.
 
 ## Initial pull
 
@@ -121,4 +147,4 @@ synchronization guide's state-dependent behavior. Check both exit statuses and
 reported states; skipped or failed pages are not synchronized.
 
 Application installation and migration details:
-[cflsync README](https://github.com/sverologos/cflsync/blob/69ebb39239c449ab9b5921e847df09cf7764a5c0/README.md).
+[cflsync README](https://github.com/sverologos/cflsync/blob/4ec3f3ecb3968017fc9fdde9e7140af4a228eafc/README.md).

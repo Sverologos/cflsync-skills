@@ -46,6 +46,11 @@ cflsync page push PAGE_ID
 cflsync page status PAGE_ID
 ```
 
+Push preflights conversion and managed page links before uploading attachments.
+If it reports broken page links, inspect the target IDs, access, and root-tree
+membership using the [authoring guide](authoring.md#links-between-managed-pages);
+repair the links within the requested scope. Force does not bypass this check.
+
 These are command examples, not an unconditional pull-then-push sequence.
 Select the operation from the state table and requested scope. Pull installs
 missing ancestors and can move page directories after remote renames/moves;
@@ -147,4 +152,4 @@ page. For creation recovery, use the [page creation guide](creation.md); for
 copy recovery, use the [template-page guide](template-pages.md).
 
 Synchronization source:
-[cflsync specification](https://github.com/sverologos/cflsync/blob/69ebb39239c449ab9b5921e847df09cf7764a5c0/doc/SPEC.md).
+[cflsync specification](https://github.com/sverologos/cflsync/blob/4ec3f3ecb3968017fc9fdde9e7140af4a228eafc/doc/SPEC.md).
