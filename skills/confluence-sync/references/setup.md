@@ -13,65 +13,60 @@ These instructions follow cflsync **0.5.7**, source revision
 `4ec3f3ecb3968017fc9fdde9e7140af4a228eafc` (tag `v0.5.7`). Required
 capabilities include rooted workareas with workarea/cache format 3 and page
 status/pull/push. Creation and import require `page create`; template-page
-tasks require native `page copy --parent`. Do not infer command availability
-from the version number alone. The documented tag can be selected for a
+tasks require native `page copy --parent`. The documented tag supports
 reproducible installation.
 
 The installed 0.5.7 package was checked against the tagged source. CLI and
 markup behavior were validated on Linux with Python 3.13 and Pandoc 3.10 using
 isolated Confluence fixtures; these checks did not contact a live site.
 
-Check the existing commands without contacting Confluence:
+1. Check existing commands without contacting Confluence:
 
-```console
-cflsync --help
-cflsync page --help
-cflsync page pull --help
-cflsync page push --help
-cflsync page status --help
-pandoc --version
-```
+   ```console
+   cflsync --help
+   cflsync page --help
+   cflsync page pull --help
+   cflsync page push --help
+   cflsync page status --help
+   pandoc --version
+   ```
 
-For copying, also check `cflsync page copy --help` and its `--parent` option.
-For creation from scratch or Markdown import, check `cflsync page create --help`
-and its `PARENT_PAGE_REF TITLE` arguments.
-Use command help rather than assuming a `cflsync --version` option exists.
-Only check structural commands such as rename or move when required.
+   - Use command help; do not infer capabilities from a version number or assume
+     that `cflsync --version` exists.
+   - For copying, check `cflsync page copy --help` and `--parent`.
+   - For creation or import, check `cflsync page create --help` and its
+     `PARENT_PAGE_REF TITLE` arguments.
+   - Check structural commands such as rename or move only when required.
+2. Feed empty standard input to `pandoc --from=gfm --to=json`; inspect
+   `pandoc-api-version`. This revision requires **1.23.1.2**, represented as
+   `[1, 23, 1, 2]`; the executable version alone is insufficient. Pandoc **3.10**
+   is the validation baseline.
+3. Reuse compatible installations. For a different cflsync revision, use its
+   reported API requirement; do not upgrade either tool speculatively or add
+   upgrade flags during ordinary authoring.
+4. Install only when necessary and within the requested setup. Existing task
+   authorization carries through; environment execution permissions still apply.
+   - On Windows, Scoop supplies cflsync, bundled CPython, and Pandoc. Reuse an
+     existing bucket; otherwise add it before installing:
 
-The converter requires Pandoc's native JSON API version **1.23.1.2**, not just
-a particular Pandoc executable version. Pandoc **3.10** is the validation
-baseline. Feed empty standard input to `pandoc --from=gfm --to=json` and inspect
-its `pandoc-api-version` array: it must be `[1, 23, 1, 2]` for this cflsync
-revision. Reuse an existing installation that satisfies this check. A different
-cflsync revision may change the API requirement; use its reported requirement
-rather than upgrade either tool speculatively.
+     ```console
+     scoop bucket add sverologos https://github.com/sverologos/scoop
+     scoop install cflsync
+     ```
 
-If installation is necessary and covered by the requested setup, use the
-application's supported distribution. Existing task authorization carries
-through; environment execution permissions still apply.
+   - On Linux/macOS or WSL, use uv with Python 3.11 or later and install
+     compatible Pandoc separately:
 
-On Windows, Scoop supplies cflsync, bundled CPython, and Pandoc as a dependency:
+     ```console
+     uv tool install git+https://github.com/sverologos/cflsync@v0.5.7
+     ```
 
-```console
-scoop bucket add sverologos https://github.com/sverologos/scoop
-scoop install cflsync
-```
-
-Reuse an existing bucket rather than add it again. On Linux/macOS or WSL, use
-uv with Python 3.11 or later and install compatible Pandoc separately:
-
-```console
-uv tool install git+https://github.com/sverologos/cflsync@v0.5.7
-```
-
-From a suitable application checkout, `uv tool install .` is also supported.
-Do not replace a compatible installed tool or add upgrade flags during ordinary
-authoring. If an incompatible tool is already installed, establish the needed
-replacement within the setup scope and follow uv/Scoop's supported procedure.
-Verify command capabilities and Pandoc after installation, before workarea
-operations. If execution or installation is unavailable or outside scope,
-report the unmet dependency and applicable commands rather than claim setup
-success.
+     From a suitable application checkout, `uv tool install .` is also supported.
+   - If an incompatible tool is installed, establish the needed replacement
+     within setup scope and follow uv/Scoop's supported procedure.
+5. Verify command capabilities and Pandoc after installation, before workarea
+   operations. If execution or installation is unavailable or outside scope,
+   report the unmet dependency and applicable commands; do not claim setup success.
 
 ## Authentication and workarea boundary
 
@@ -97,54 +92,62 @@ success.
    cflsync init -p PROFILE ROOT_PAGE_REF
    ```
 
-Initialization anchors the workarea and records version `3`; it downloads no
-pages. Report the selected root ID/profile and whether synchronization was
-requested and completed.
-Omitting `-p` selects `default`, including during re-anchoring.
+   Initialization anchors the workarea and records version `3`; it downloads no
+   pages. Omitting `-p` selects `default`, including during re-anchoring.
+6. Report the selected root ID/profile and whether synchronization was requested
+   and completed.
 
-Re-anchoring is a distinct requested operation: `init` permits it only from the
-workarea root when the cache contains no page state. Do not clear a populated
-cache to satisfy this restriction.
+- Re-anchor only as a distinct requested operation. `init` permits it only from
+  the workarea root when the cache contains no page state; do not clear a
+  populated cache to satisfy this restriction.
 
 ## Existing workareas and older markup
 
 cflsync 0.5.7 refuses populated workareas created by 0.4 or earlier, including
-format-1 and format-2 cache entries. For a requested migration, preserve local
-content, attachments, and unmanaged files first. Publish old local changes
-using the version that created the workarea only when publication is requested;
-otherwise retain them for deliberate reapplication. Initialize a fresh workarea
-in an empty directory with the established profile and root, pull the requested
-pages, and transfer preserved local changes and needed unmanaged files into
-the new managed paths. Do not edit `.cflsync/version`, rewrite cache entries,
-or clear the old cache to bypass compatibility checks. An empty older workarea
-can be re-anchored by the CLI only within an explicit setup/migration request.
+format-1 and format-2 cache entries.
 
-In compatible workareas, dates from 0.5.3 and earlier and statuses from 0.5.6
-and earlier use spans that 0.5.7 rejects on push. Rewrite them using the
-[authoring guide](authoring.md#special-spans-and-opaque-content), preserving
-the intended date and status. Older panel alerts still push, but now use the
-one-to-one mapping in that guide; review their intended panel type. A normal
-pull does not regenerate unchanged files. If a requested migration needs fresh
-remote markup, use targeted `page pull --force` only after preserving and
-reconciling local changes under the synchronization guide. Do not force-pull
-the whole tree merely because the installed tool was upgraded.
+1. For a requested migration, preserve local content, attachments, and unmanaged
+   files first.
+2. Publish old local changes using the version that created the workarea only
+   when requested; otherwise retain them for deliberate reapplication.
+3. Initialize a fresh workarea in an empty directory with the established
+   profile and root; pull the requested pages.
+4. Transfer preserved changes and needed unmanaged files into the new managed
+   paths. Do not edit `.cflsync/version`, rewrite entries, or clear the old cache
+   to bypass compatibility checks.
+
+- Re-anchor an empty older workarea through the CLI only within an explicit
+  setup/migration request.
+- In compatible workareas, rewrite date spans from 0.5.3 or earlier and status
+  spans from 0.5.6 or earlier using the
+  [authoring guide](authoring.md#special-spans-and-opaque-content). Preserve
+  intended values; 0.5.7 rejects the old spans on push.
+- Review older panel alerts against the guide's current one-to-one mapping;
+  they still push but may represent a different panel type.
+- For a requested migration needing fresh remote markup, use targeted
+  `page pull --force` only after preserving and reconciling changes under the
+  synchronization guide. Normal pull does not regenerate unchanged files; do
+  not force-pull the whole tree merely because the tool was upgraded.
 
 ## Initial pull
 
-For requested full-tree synchronization after initialization:
+1. Establish requested synchronization scope. Setup alone does not imply a pull;
+   initial synchronization needs neither force nor deletion flags. In a populated
+   workarea, preserve local edits and follow the synchronization guide's
+   state-dependent behavior.
+2. Pull only the requested scope:
+   - For full-tree synchronization after initialization:
 
-```console
-cflsync pull
-cflsync status
-```
+     ```console
+     cflsync pull
+     cflsync status
+     ```
 
-For selected pages, use `cflsync page pull PAGE_REF`; missing ancestors are
-installed automatically, parents first. Follow with `page status PAGE_ID`.
-Do not expand a selected-page request into a full-tree pull. Setup alone does
-not imply a pull, and initial synchronization needs neither force nor deletion
-flags. In an already populated workarea, preserve local edits and follow the
-synchronization guide's state-dependent behavior. Check both exit statuses and
-reported states; skipped or failed pages are not synchronized.
+   - For selected pages, use `cflsync page pull PAGE_REF`, then
+     `cflsync page status PAGE_ID`. Missing ancestors install automatically,
+     parents first; do not expand scope to a full-tree pull.
+3. Check exit statuses and reported states; skipped or failed pages are not
+   synchronized.
 
 Application installation and migration details:
 [cflsync README](https://github.com/sverologos/cflsync/blob/4ec3f3ecb3968017fc9fdde9e7140af4a228eafc/README.md).

@@ -10,52 +10,47 @@ one at https://mozilla.org/MPL/2.0/.
 Import individually selected Markdown files under the configured workarea root.
 A request to import a directory uses the multi-page procedure below to select
 each file's parent. Creation makes an empty page visible remotely; the imported
-body and attachments remain local. Do not push automatically at the end of import.
-Publication is a separate requested operation using the
-[synchronization guide](synchronization.md).
+body and attachments remain local.
+
+- Do not push automatically at the end of import. Publish only as a separate
+  requested operation using the [synchronization guide](synchronization.md).
 
 ## Establish sources and destination
 
-Locate the existing workarea and read `.cflsync/root` to retain its root page
-ID as `ROOT_ID`, following the skill's identity and scope rules. Do not
-initialize or re-anchor a workarea as part of import. Check
-`cflsync page create --help` if the installed capability is not established.
-
-Read the selected source files and identify their referenced local media before
-creation. Preserve the source files and assets. Resolve relative media paths
-against each source file's directory, not the workarea or current command
-directory. Import only Markdown files, with one new page per file; other files
-are copied only when referenced as local media. Do not create pages merely to
-represent source directories.
+1. Locate the existing workarea and read `.cflsync/root`; retain its root ID as
+   `ROOT_ID` under the skill's identity and scope rules. Do not initialize or
+   re-anchor during import. Check `cflsync page create --help` if capability
+   is not established.
+2. Read selected source files and identify referenced local media before
+   creation. Preserve source files and assets; resolve relative media paths
+   against each source file's directory, not the workarea or command directory.
+3. Import Markdown files only, one new page per file. Copy other files only as
+   referenced local media; do not create pages to represent source directories.
 
 ## Directory import
 
-When the requested source is a directory, enumerate its Markdown files,
-including files in nested subdirectories. Process the top-level files first,
-then each subdirectory's files before descending into its children. Pages
-created earlier in this import can serve as parents for later files.
-
-For each file, select `PARENT_ID` before applying the single-page procedure:
-
-- A file directly inside the requested directory uses `ROOT_ID`, regardless
-  of the requested directory's name.
-- A file inside a subdirectory uses that immediate containing directory's
-  basename as an exact page title. Follow the skill's title-lookup rules:
-  cached exact-title matches take precedence; without a cached match, look
-  for an exact-title match among remote pages inside the configured root tree.
-  Include pages already created in this batch. Retain the matching page's ID
-  as `PARENT_ID` and verify that it is still a valid in-tree parent.
-- If there is no matching page in the tree, use `ROOT_ID`. For a nested
-  directory, check its own basename; do not inherit a matching ancestor
-  directory's parent when the immediate directory has no match.
-
-Directory names are titles, not managed directory names, paths, or numeric
-page IDs. Resolve the title deliberately and pass the resulting ID to
-`page create`; a raw directory name could otherwise be interpreted as a path
-or ID by the CLI. If lookup is ambiguous or fails, leave the affected file
-pending and report the candidate IDs or error. Use root fallback only for a
-confirmed absence of a match, not for an unresolved lookup. Preserve unrelated
-parent edits; creating children does not require publishing their parents.
+1. For a requested directory, enumerate its Markdown files recursively.
+2. Process top-level files first, then each subdirectory's files before its
+   children. Pages created earlier in the batch can parent later files.
+3. Select `PARENT_ID` for each file:
+   - Directly inside the requested directory: use `ROOT_ID`, regardless of the
+     requested directory's name.
+   - Inside a subdirectory: resolve the immediate containing directory's
+     basename as an exact page title. Prefer cached exact-title matches; without
+     one, look among remote pages inside the configured root tree. Include pages
+     already created in the batch. Retain the matching ID as `PARENT_ID` and
+     verify that it remains a valid in-tree parent.
+   - With no matching page: use `ROOT_ID`. Check the immediate directory's own
+     basename; do not inherit a matching ancestor directory's parent.
+4. Pass resolved IDs to `page create`. Directory names are titles, not managed
+   directory names, paths, or numeric IDs; passing a raw name could cause the CLI
+   to interpret it as a path or ID.
+   - For ambiguity or lookup failure, leave the file pending and report candidate
+     IDs or the error. Root fallback requires confirmed absence of a match.
+   - Preserve unrelated parent edits; child creation does not require parent
+     publication.
+5. Apply every single-page step below with the selected `PARENT_ID`, including
+   media transfer and local verification. Do not push the batch.
 
 For example, when `Architecture` is a matching page and `misc` is not:
 
@@ -65,27 +60,24 @@ For example, when `Architecture` is a matching page and `misc` is not:
 | `Architecture/decision.md` | The `Architecture` page |
 | `misc/notes.md` | Workarea root |
 
-Apply all single-page steps below to every file with its selected `PARENT_ID`,
-including media transfer and local verification. Do not push the batch.
-
 ## Single-page import
 
-Process files individually, retaining the source path, selected title, new page
-ID, parent ID, installed path, and outcome for each file. For an individually
-selected file, set `PARENT_ID` to `ROOT_ID`; directory import uses the parent
-selected above. The rest of the procedure is the same in both cases.
+- Process files individually; retain each source path, selected title, new page
+  ID, parent ID, installed path, and outcome.
+- For individually selected files, set `PARENT_ID` to `ROOT_ID`. For directory
+  import, use the parent selected above; the remaining steps are shared.
 
-1. If the file contains a level-one Markdown heading, use the first such
-   heading's plain text as the page title. Recognize both ATX (`# Title`) and
-   Setext (`Title` followed by `=====`) headings; heading-like text in code
-   blocks is not a title. Additional level-one headings remain body sections
-   and are demoted during transfer below.
-2. Otherwise, use the source filename without its `.md` extension. For example,
-   `release.notes.md` gives `release.notes`.
-3. Ensure the selected title is non-empty, single-line text without surrounding
+1. Select the page title:
+   - With a level-one Markdown heading, use the first such heading's plain text.
+     Recognize ATX (`# Title`) and Setext (`Title` followed by `=====`); ignore
+     heading-like text in code blocks. Demote additional level-one headings
+     to body sections during transfer below.
+   - Without one, use the filename minus `.md`; `release.notes.md` gives
+     `release.notes`.
+2. Ensure the selected title is non-empty, single-line text without surrounding
    whitespace. Trim heading whitespace; resolve an unusable title before
    creating the page rather than inventing one.
-4. From the workarea root, create the page under the selected parent:
+3. From the workarea root, create the page under the selected parent:
 
    ```console
    cflsync page create PARENT_ID "Selected title"
@@ -136,8 +128,8 @@ selected above. The rest of the procedure is the same in both cases.
    become attachments or links to imported pages.
 5. Report missing or unresolved local media as errors and consult the user
    about recovery; leave that file's import incomplete while advice is pending.
-   Do not overwrite managed or unmanaged files blindly or introduce traversal paths in
-   `_attachments/` references. A copied file becomes managed only when
+   Do not overwrite managed or unmanaged files blindly or introduce traversal
+   paths in `_attachments/` references. A copied file becomes managed only when
    `content.md` references it under `_attachments/`.
 6. Re-read affected destination files before applying changes. Review the
    resulting content, attachment set, rewritten links, and any deletions;
@@ -145,25 +137,24 @@ selected above. The rest of the procedure is the same in both cases.
 
 ## Verify and report without publishing
 
-Check that the generated title is retained, each rewritten local-media target
-exists, and distinct source assets have not overwritten one another. Apply
-[attachment validation](authoring.md#attachment-validation): consult the user
-about missing referenced files or unreferenced local attachments, retaining
-files without explicit deletion consent. Inspect the resulting local changes
-and run:
+1. Check the generated title, existence of each rewritten local-media target,
+   and absence of overwrites between distinct source assets.
+2. Apply [attachment validation](authoring.md#attachment-validation). Consult
+   the user about missing referenced files or unreferenced local attachments;
+   retain files without explicit deletion consent.
+3. Inspect the resulting local changes and run:
 
-```console
-cflsync page status NEW_ID
-```
+   ```console
+   cflsync page status NEW_ID
+   ```
 
-Local content or attachment changes are the expected result; do not push to
-obtain an unchanged status. Report each source file's new page ID, parent ID,
-managed path, local import outcome, unresolved assets, and failed or skipped steps.
-Distinguish remote creation of the empty page from local preparation of its
-body and attachments. Status does not verify Confluence browser rendering.
-
-For partial batches, retain successful pages and resume failed files using
-their known page IDs. Never repeat creation for a file whose page already
-exists, automatically delete created pages as rollback, or retry creation
-while its remote outcome or identity is uncertain. Stop further creation on
-such uncertainty and use the creation recovery guide.
+   Local content or attachment changes are expected; do not push to obtain an
+   unchanged status.
+4. Report each source file's new page ID, parent ID, managed path, local import
+   outcome, unresolved assets, and failed or skipped steps. Distinguish remote
+   creation of the empty page from local preparation of body and attachments.
+   Status does not verify Confluence browser rendering.
+5. For partial batches, retain successful pages and resume failed files by their
+   known IDs. Do not repeat creation for an existing page or automatically delete
+   created pages as rollback. Stop further creation while remote outcome or
+   identity is uncertain and use the creation recovery guide.

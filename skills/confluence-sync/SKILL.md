@@ -38,8 +38,8 @@ copy support it.
 
 ## Select guidance
 
-Read only the references required by the task. Paths below are relative to
-this skill directory; the package carries its operational guidance.
+- Read only the references required by the task. Paths below are relative to
+  this skill directory; the package carries its operational guidance.
 
 | Task | Read |
 | --- | --- |
@@ -53,9 +53,9 @@ this skill directory; the package carries its operational guidance.
 | Import a directory of Markdown files, selecting parents by subdirectory title matches | [Directory import](references/import.md#directory-import), then the shared single-page steps in that guide |
 | Copy and customize a template page | [Template pages](references/template-pages.md), then authoring/synchronization guidance as needed |
 
-Ordinary authoring reuses compatible dependencies; it does not trigger tool
-upgrades or load installation instructions unless a dependency is missing or
-incompatible. Check the installed CLI's help for commands required by the task.
+- Reuse compatible dependencies during ordinary authoring. Load installation
+  guidance only for missing or incompatible dependencies; do not trigger upgrades.
+- Check the installed CLI's help for commands required by the task.
 
 ## Establish identity and scope
 
