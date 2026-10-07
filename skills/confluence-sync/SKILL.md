@@ -16,7 +16,7 @@ compatibility: >-
   authentication profile. See references/setup.md for capability checks.
 metadata:
   author: Sverologos BV
-  version: "0.2.0"
+  version: "0.3.0"
   cflsync-version: "0.5.7"
   pandoc-json-api: "1.23.1.2"
 ---
