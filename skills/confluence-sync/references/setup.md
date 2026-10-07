@@ -20,7 +20,11 @@ The installed 0.5.7 package was checked against the tagged source. CLI and
 markup behavior were validated on Linux with Python 3.13 and Pandoc 3.10 using
 isolated Confluence fixtures; these checks did not contact a live site.
 
-1. Check existing commands without contacting Confluence:
+A command failure routes here: an unavailable executable, an unsupported
+command or option, or a Pandoc API mismatch is diagnosed with these steps.
+Compatible installations are reused without speculative upgrades.
+
+1. Diagnose the failed command without contacting Confluence:
 
    ```console
    cflsync --help

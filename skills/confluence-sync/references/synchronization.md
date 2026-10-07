@@ -7,9 +7,18 @@ one at https://mozilla.org/MPL/2.0/.
 
 # Synchronization, conflicts, and recovery
 
-## Inspect the requested scope
+## Run directly, then investigate on failure
 
-1. Resolve the requested page or workarea scope:
+1. A requested pull, push, or status inspection runs its command directly —
+   single-page `cflsync page pull PAGE_ID` or `cflsync page push PAGE_ID`,
+   whole-tree `cflsync pull` or `cflsync push`, `cflsync page status PAGE_ID`,
+   or `cflsync status`. The CLI's own checks and refusals have priority; do
+   not pre-inspect state or validate attachments before running it.
+2. Failure means a non-zero exit, a failed or skipped page in a per-page
+   summary, a CLI prompt requiring a suitable terminal, or an uncertain
+   remote outcome such as a lost response. Investigate using this guide and
+   consult the user where a semantic choice is required.
+3. To investigate, resolve the requested page or workarea scope:
    - For a cached page:
 
      ```console
@@ -23,12 +32,12 @@ one at https://mozilla.org/MPL/2.0/.
    - For cached pages missing a directory or `content.md`, use recovery below.
      Normal targeted pull fails and page status may be unavailable.
    - For whole-workarea scope, use `cflsync status`.
-2. Inspect both local and remote state, including content/attachment changes and
+4. Inspect both local and remote state, including content/attachment changes and
    possible directory relocation. Zero exit status does not mean unchanged.
    Whole-workarea labels include `not in local`, `remote removed`, `remote changed`,
    `local changed`, `conflict`, and `unchanged`. Do not infer remote deletion from
    a missing-page label alone; the page may be inaccessible or outside the root.
-3. Select the action from the state table:
+5. Select the follow-up action from the state table:
 
 | Local / remote state | Action |
 | --- | --- |
@@ -45,20 +54,18 @@ one at https://mozilla.org/MPL/2.0/.
 
 ## Pull and push
 
-1. Select the operation from the state table and requested scope. Publish existing
-   local changes only when authorized; do not run an unconditional pull-then-push
-   sequence.
-2. Before push, apply [attachment validation](authoring.md#attachment-validation).
-   Resolve missing-reference errors and unreferenced-file warnings with the user
-   before affected attachment work or publication.
-3. Before a pull that can replace managed files, inspect attachment effects:
-   - Compare the cached manifest, existing local files, and incoming managed
-     manifest. Normal and force pull delete existing cached files omitted from
-     the incoming manifest.
-   - Obtain explicit consent for those local deletions before running the command;
-     a backup or force flag is not consent.
-   - For whole-tree operations, check every affected page.
-4. Run the selected operation within scope:
+1. Run the requested operation within the requested scope. Publish existing
+   local changes only when authorized; do not run an unconditional
+   pull-then-push sequence.
+2. Attachments follow the CLI's documented behavior: pull (normal or force)
+   deletes existing cached files omitted from the incoming manifest, and push
+   can delete a previously managed remote attachment whose local file is
+   missing.
+   An explicitly requested force flag or removal is consent for those
+   effects; otherwise apply [attachment
+   validation](authoring.md#attachment-validation) only when investigating a
+   failure or when the user requests it.
+3. Command behavior within scope:
    - Single-page pull: `cflsync page pull PAGE_ID`. Retain the ID and inspect the
      resulting path; pull installs missing ancestors and can relocate directories
      after remote renames/moves. `page pull --force` affects only the target,
@@ -73,9 +80,7 @@ one at https://mozilla.org/MPL/2.0/.
      no longer in the tree. Without force, conflict aborts before any page pull.
    - Whole-tree push: `cflsync push`. It uploads local-only changes, skips
      remote-only and missing pages, and aborts on conflict before mutation.
-5. After pull, apply attachment validation and resolve errors/warnings with the
-   user before further affected attachment work or publication.
-6. Check exit codes, per-page summaries, and resulting status:
+4. Check exit codes, per-page summaries, and resulting status:
    - Use `cflsync page status PAGE_ID` for a single page or `cflsync status` for
      whole-workarea scope.
    - Whole-tree commands can continue after individual failures and return
@@ -88,8 +93,9 @@ one at https://mozilla.org/MPL/2.0/.
   copies outside the tree, including unmanaged files, and nothing remotely.
   `page remove` deletes a subtree remotely and locally; both require the
   corresponding deletion scope.
-- Use a suitable terminal when confirmation requires one. A suggested `--force`
-  flag does not authorize bypassing the prompt or discarding content.
+- A CLI confirmation prompt is a follow-up trigger: obtain the user's decision
+  in a suitable terminal. A suggested `--force` flag does not authorize
+  bypassing the prompt or discarding content.
 
 ## Reconcile two-sided changes
 

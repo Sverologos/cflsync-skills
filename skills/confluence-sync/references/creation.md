@@ -10,13 +10,14 @@ one at https://mozilla.org/MPL/2.0/.
 ## Establish destination and creation scope
 
 1. Establish the workarea, destination parent, new title, and whether the body
-   and attachments should be published or left local. Check
-   `cflsync page create --help` if the installed capability is not established.
-   Use setup guidance only for missing dependencies or a missing workarea.
+   and attachments should be published or left local. Use setup guidance only
+   when a create attempt fails for a missing or incompatible dependency, or
+   when the workarea is missing.
 2. Resolve the parent using a managed path, numeric ID, or exact title. It must
    be inside the configured root tree, including the root itself. Clarify
    ambiguity and retain its ID; creation uses the parent's space.
-3. Validate a non-empty, single-line title without surrounding whitespace.
+3. Create with the requested title; if the CLI rejects it as unusable, resolve
+   a valid title with the user rather than inventing one.
 4. Establish remote creation scope:
    - A request to create a Confluence page authorizes immediate creation of an
      empty remote page. Later local edits require a push to appear remotely.
@@ -52,9 +53,8 @@ one at https://mozilla.org/MPL/2.0/.
 
    Retain the ID as `NEW_ID` and the installed path. Do not select an arbitrary
    title match or assume that the title alone identifies the path.
-4. Read the generated `content.md` and inspect local/remote status before
-   editing. Apply the authoring and synchronization guides to intervening
-   changes from other contributors.
+4. Read the generated `content.md` before editing. Apply the authoring and
+   synchronization guides to any intervening changes from other contributors.
 
 ## Author the body
 

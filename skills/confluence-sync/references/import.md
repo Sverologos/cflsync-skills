@@ -19,8 +19,7 @@ body and attachments remain local.
 
 1. Locate the existing workarea and read `.cflsync/root`; retain its root ID as
    `ROOT_ID` under the skill's identity and scope rules. Do not initialize or
-   re-anchor during import. Check `cflsync page create --help` if capability
-   is not established.
+   re-anchor during import.
 2. Read selected source files and identify referenced local media before
    creation. Preserve source files and assets; resolve relative media paths
    against each source file's directory, not the workarea or command directory.
@@ -74,9 +73,9 @@ For example, when `Architecture` is a matching page and `misc` is not:
      to body sections during transfer below.
    - Without one, use the filename minus `.md`; `release.notes.md` gives
      `release.notes`.
-2. Ensure the selected title is non-empty, single-line text without surrounding
-   whitespace. Trim heading whitespace; resolve an unusable title before
-   creating the page rather than inventing one.
+2. Trim heading whitespace from the selected title; if the CLI rejects the
+   derived title as unusable, resolve it with the user rather than inventing
+   one.
 3. From the workarea root, create the page under the selected parent:
 
    ```console

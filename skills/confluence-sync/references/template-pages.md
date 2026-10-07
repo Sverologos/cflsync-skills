@@ -16,10 +16,10 @@ template.
 ## Resolve the source and destination
 
 1. Establish the source title or ID, destination parent, new title, and requested
-   customization. Check `cflsync page copy --help` if capability is not established.
-   Copy and customization authorize remote creation; copy cannot defer creation
-   until publishing. For a local-only draft, establish the intended outcome
-   before using copy.
+   customization. Copy and customization authorize remote creation; copy cannot
+   defer creation until publishing. For a local-only draft, establish the
+   intended outcome before using copy. Use setup guidance only when a copy
+   attempt fails for a missing or incompatible dependency.
 2. Resolve the source using a managed path, numeric ID, or exact title. Paths
    select page identity, not local content to upload. For title lookup:
    1. Prefer cached exact-title matches; ambiguity is an error.
@@ -30,15 +30,12 @@ template.
 3. Clarify ambiguity using reported IDs; do not fall back to external candidates
    from an ambiguous cached or in-tree stage. A cached source moved outside
    the tree is refused, not reclassified as an external template.
-4. Check source state:
-   - For an in-workarea source, require unchanged local and remote body, title,
-     parent, and managed attachments. Pull an unpulled in-tree source first,
-     then inspect status.
-   - Preserve source changes and follow the synchronization guide. Do not
-     discard or publish them merely to enable copy. If source publication is
-     needed but outside scope, obtain that decision or leave copy pending.
-   - Uncached external sources copy directly from remote state without a local
-     baseline.
+4. Copy reflects the source's remote state; local source edits are not
+   included. Do not discard or publish source edits merely to enable copy — if
+   the copy must include them, publish or reconcile them as a separate
+   requested operation. A refused copy is a failure to investigate with the
+   synchronization guide. Uncached external sources copy directly from remote
+   state without a local baseline.
 5. Resolve a destination parent currently inside the managed tree. External
    sources and the root page require explicit `--parent`; otherwise omission
    chooses the source's current parent. Missing ancestors install automatically,

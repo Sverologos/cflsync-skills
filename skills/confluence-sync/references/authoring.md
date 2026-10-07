@@ -9,10 +9,9 @@ one at https://mozilla.org/MPL/2.0/.
 
 ## Editing workflow
 
-1. Resolve the page and retain its ID. Inspect `cflsync page status PAGE_ID`.
-   Incorporate remote-only changes with a targeted pull; preserve local edits;
-   resolve two-sided changes using the synchronization guide. Pull an unpulled
-   in-tree page before editing it.
+1. Resolve the page and retain its ID. Pull an unpulled in-tree page before
+   editing it; a cached page's `content.md` is edited as it stands. A failed
+   pull or a later failed push is investigated with the synchronization guide.
 2. Locate the current managed directory after any pull. Read `content.md` and
    relevant attachments; do not assume the path derived from a title is stable.
 3. Re-read files immediately before making focused edits. Preserve unrelated
@@ -20,7 +19,8 @@ one at https://mozilla.org/MPL/2.0/.
 4. Review the content and attachment diff, including deletions and links. A
    Git diff is useful when available, but Git is not required. Preserve opaque
    JSON blocks and validate any deliberately edited special-span attributes.
-   Apply attachment validation below before publication or attachment changes.
+   Apply attachment validation below when a failure or a user request calls
+   for it.
 5. Leave an editing-only result local. If publishing is requested, use
    `cflsync page push PAGE_ID`, then `cflsync page status PAGE_ID`. Handle a new
    conflict rather than forcing a stale candidate over intervening edits.
@@ -160,8 +160,9 @@ unit. Changing an attachment can conflict even when Markdown is unchanged.
 Removing a previously managed attachment file locally can delete it remotely
 on push. Removing a page directory manually does not delete the remote page.
 
-- Delete local attachments only with explicit consent for the affected files;
-  removing references alone does not authorize file deletion.
+- Deletion by an explicitly requested force or removal command is consent for
+  the affected files; otherwise delete local attachments only with explicit
+  consent. Removing references alone does not authorize file deletion.
 - Repair references after authorized deletion and keep remote deletion within
   requested scope.
 - Use `page remove` for page deletion; do not substitute manual directory removal.
@@ -184,8 +185,10 @@ on push. Removing a page directory manually does not delete the remote page.
 4. Apply the advice and check again. Preserve opaque ADF and existing references
    while investigating uncertain usage.
 
-- Run validation after body editing/import, pull, and recovery, and before
-  publication or attachment changes.
+- Run validation after import, during failure investigation — a refused or
+  failed command, a reported attachment discrepancy — and when the user
+  requests an attachment audit. The CLI's own checks have priority; validation
+  does not gate direct execution.
 - Also validate a proposed body before a refresh affecting existing attachments.
 
 ## Links between managed pages
